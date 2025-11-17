@@ -1,0 +1,260 @@
+/* Filter Panel - Newsletter-Inspired Clean Interface */
+.filter-panel {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-2xl);
+  box-shadow: var(--shadow-card);
+  transition: all var(--transition-medium);
+}
+
+.filter-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+/* Header - Newsletter Section Style */
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.filter-title {
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.0625rem; /* 1px - Newsletter style */
+  margin: 0;
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Reset Button - Clean & Minimal */
+.reset-filters-btn {
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.reset-filters-btn:hover {
+  background-color: var(--accent-primary-soft);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  box-shadow: var(--shadow-hover);
+}
+
+.reset-filters-btn:active {
+  transform: scale(0.98);
+}
+
+.reset-filters-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+/* Filter Grid - Responsive Layout */
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-xl);
+  align-items: start;
+}
+
+/* Filter Group - Newsletter Spacing */
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* Filter Label - Enhanced Visibility */
+.filter-label {
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.0625rem; /* 1px */
+}
+
+/* Select Dropdown - Enhanced Readability */
+.filter-select {
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  padding: var(--space-md) var(--space-lg);
+  background-color: var(--bg-tertiary);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.filter-select:hover {
+  border-color: var(--accent-secondary);
+  background-color: var(--bg-secondary);
+}
+
+.filter-select:focus {
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-focus);
+  background-color: var(--bg-secondary);
+}
+
+.filter-select[multiple] {
+  min-height: 120px;
+  padding: var(--space-sm);
+}
+
+.filter-select option {
+  padding: var(--space-sm);
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  margin: var(--space-xs) 0;
+}
+
+.filter-select option:checked {
+  background: var(--accent-primary);
+  color: white;
+  font-weight: var(--font-weight-bold);
+}
+
+/* Filter Hint - Subtle Helper Text */
+.filter-hint {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  font-style: normal;
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+/* Custom Checkbox - Refined Design */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  cursor: pointer;
+  user-select: none;
+  margin-top: var(--space-sm);
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.checkbox-label:hover {
+  background-color: var(--bg-subtle);
+}
+
+.filter-checkbox {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.checkbox-custom {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-primary);
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-secondary);
+  transition: all var(--transition-fast);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.checkbox-custom::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  transition: transform var(--transition-fast);
+}
+
+.filter-checkbox:checked + .checkbox-custom {
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+.filter-checkbox:checked + .checkbox-custom::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.checkbox-label:hover .checkbox-custom {
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 0 2px var(--accent-secondary-soft);
+}
+
+.filter-checkbox:focus-visible + .checkbox-custom {
+  box-shadow: var(--shadow-focus);
+}
+
+.checkbox-text {
+  font-family: var(--font-family);
+  font-size: var(--font-size-md);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Responsive - Mobile Optimization */
+@media (max-width: 768px) {
+  .filter-panel {
+    padding: var(--space-lg);
+    margin-bottom: var(--space-xl);
+  }
+
+  .filter-content {
+    gap: var(--space-lg);
+  }
+
+  .filter-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+
+  .filter-select[multiple] {
+    min-height: 100px;
+  }
+
+  .filter-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-md);
+  }
+
+  .reset-filters-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-panel {
+    padding: var(--space-md);
+  }
+}
