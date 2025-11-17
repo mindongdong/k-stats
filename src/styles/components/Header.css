@@ -1,0 +1,275 @@
+/* Header - Bold Editorial Data Magazine Style */
+.header {
+  padding: var(--space-3xl) 0;
+  border-bottom: 3px solid transparent;
+  border-image: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%) 1;
+  margin-bottom: var(--space-3xl);
+  background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-medium);
+}
+
+/* Subtle Background Pattern */
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    linear-gradient(135deg, var(--accent-primary-bg) 0%, transparent 50%),
+    linear-gradient(-135deg, var(--accent-secondary-bg) 0%, transparent 50%);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.header-content {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* Main Title - Large & Bold */
+.header-title {
+  font-family: var(--font-family);
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-lg);
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  line-height: var(--line-height-tight);
+}
+
+/* Main Title with Gradient Accent */
+.title-main {
+  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 1em;
+  position: relative;
+  display: inline-block;
+  padding: 0 var(--space-sm);
+}
+
+/* Decorative Brackets - Korean Aesthetic */
+.title-main::before,
+.title-main::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60%;
+  background: linear-gradient(180deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  border-radius: 2px;
+}
+
+.title-main::before {
+  left: -8px;
+}
+
+.title-main::after {
+  right: -8px;
+}
+
+/* Divider */
+.title-divider {
+  color: var(--text-muted);
+  font-weight: var(--font-weight-normal);
+  font-size: 0.5em;
+  opacity: 0.6;
+}
+
+/* Korean Subtitle */
+.title-sub {
+  color: var(--text-secondary);
+  font-size: 0.5em;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.05em;
+}
+
+/* Header Subtitle - Data Context */
+.header-subtitle {
+  color: var(--text-secondary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-normal);
+  margin-top: var(--space-sm);
+  line-height: var(--line-height-normal);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Week Info Badge - New */
+.week-info {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+  padding: var(--space-sm) var(--space-lg);
+  background-color: var(--accent-primary-soft);
+  border: 1px solid var(--accent-primary);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--accent-primary);
+}
+
+.week-info-icon {
+  font-size: var(--font-size-md);
+}
+
+/* Data Source Badge */
+.data-source {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-md);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.0625rem;
+}
+
+.data-source::before {
+  content: '';
+  width: 20px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--text-muted) 100%);
+}
+
+.data-source::after {
+  content: '';
+  width: 20px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--text-muted) 0%, transparent 100%);
+}
+
+/* Stats Summary Cards - Optional Enhancement */
+.header-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-2xl);
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.stat-card {
+  padding: var(--space-lg);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  text-align: center;
+  transition: all var(--transition-fast);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--accent-primary);
+}
+
+.stat-card-value {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--accent-primary);
+  line-height: 1;
+  margin-bottom: var(--space-xs);
+}
+
+.stat-card-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .header {
+    padding: var(--space-2xl) 0;
+    margin-bottom: var(--space-2xl);
+  }
+
+  .header-title {
+    font-size: var(--font-size-3xl);
+    gap: var(--space-sm);
+  }
+
+  .title-divider {
+    display: none;
+  }
+
+  .title-sub {
+    font-size: 0.55em;
+  }
+
+  .title-main::before,
+  .title-main::after {
+    display: none;
+  }
+
+  .header-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+  }
+
+  .stat-card {
+    padding: var(--space-md);
+  }
+
+  .stat-card-value {
+    font-size: var(--font-size-2xl);
+  }
+}
+
+@media (min-width: 600px) {
+  .header-title {
+    flex-direction: row;
+    gap: var(--space-xl);
+  }
+
+  .title-divider {
+    display: inline;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .week-info {
+    font-size: 0.75rem;
+    padding: var(--space-xs) var(--space-md);
+  }
+
+  .header-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .header {
+    background: none;
+    border-bottom: 2px solid #000;
+  }
+
+  .header::before {
+    display: none;
+  }
+
+  .title-main {
+    -webkit-text-fill-color: #000;
+  }
+}
