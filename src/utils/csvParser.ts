@@ -1,5 +1,31 @@
 import Papa from 'papaparse';
-import type { Player } from '../types';
+import type { Player, RecentMatch } from '../types';
+
+/**
+ * recent_matches_json 문자열을 파싱하여 최근 경기 정보 반환
+ * @param jsonString - JSON 형식의 경기 기록 문자열
+ * @returns 가장 최근 경기 정보 또는 null
+ */
+export const parseRecentMatch = (jsonString: string | null): RecentMatch | null => {
+  if (!jsonString || jsonString.trim() === '') {
+    return null;
+  }
+
+  try {
+    const matches = JSON.parse(jsonString) as RecentMatch[];
+
+    // 배열이 비어있거나 유효하지 않은 경우
+    if (!Array.isArray(matches) || matches.length === 0) {
+      return null;
+    }
+
+    // 첫 번째 경기(가장 최근 경기) 반환
+    return matches[0];
+  } catch (error) {
+    console.warn('⚠️ recent_matches_json 파싱 실패:', error);
+    return null;
+  }
+};
 
 /**
  * CSV 파일을 로드하고 파싱하는 함수
@@ -37,7 +63,13 @@ export const loadPlayerData = async (filePath: string): Promise<Player[]> => {
             console.log('📋 첫 3명 샘플 데이터:', results.data.slice(0, 3));
           }
 
-          resolve(results.data);
+          // 각 선수의 recent_matches_json을 파싱하여 recent_match 속성 추가
+          const playersWithRecentMatch = results.data.map(player => ({
+            ...player,
+            recent_match: parseRecentMatch(player.recent_matches_json)
+          }));
+
+          resolve(playersWithRecentMatch);
         },
         error: (error: Error) => {
           console.error('❌ CSV 파싱 실패:', error);

@@ -3,20 +3,39 @@ import type { Player, FilterOptions } from '../types';
 /**
  * 데이터 정렬 함수
  * @param data - 정렬할 데이터 배열
- * @param key - 정렬 기준 컬럼
+ * @param key - 정렬 기준 컬럼 (Player 속성 또는 커스텀 키)
  * @param direction - 정렬 방향 ('asc' | 'desc')
  * @returns 정렬된 데이터
  */
 export const sortData = (
   data: Player[],
-  key: keyof Player | null,
+  key: string | null,
   direction: 'asc' | 'desc'
 ): Player[] => {
   if (!key) return data;
 
   return [...data].sort((a, b) => {
-    let aValue: any = a[key];
-    let bValue: any = b[key];
+    let aValue: any;
+    let bValue: any;
+
+    // 커스텀 키 처리 (최근 경기 데이터)
+    if (key === 'recent_rating') {
+      aValue = a.recent_match?.rating ? parseFloat(a.recent_match.rating) : null;
+      bValue = b.recent_match?.rating ? parseFloat(b.recent_match.rating) : null;
+    } else if (key === 'recent_minutes') {
+      aValue = a.recent_match?.minutes ?? null;
+      bValue = b.recent_match?.minutes ?? null;
+    } else if (key === 'recent_goals') {
+      aValue = a.recent_match?.goals ?? null;
+      bValue = b.recent_match?.goals ?? null;
+    } else if (key === 'recent_assists') {
+      aValue = a.recent_match?.assists ?? null;
+      bValue = b.recent_match?.assists ?? null;
+    } else {
+      // 기본 Player 속성 접근
+      aValue = a[key as keyof Player];
+      bValue = b[key as keyof Player];
+    }
 
     // null, undefined, 빈 문자열 처리
     if (aValue == null || aValue === '') aValue = direction === 'asc' ? Infinity : -Infinity;

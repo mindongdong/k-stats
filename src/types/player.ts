@@ -1,4 +1,19 @@
 /**
+ * 최근 경기 정보 타입
+ */
+export interface RecentMatch {
+  date: string;
+  opponent: string;
+  result: string;
+  is_home: boolean;
+  minutes: number;
+  goals: number;
+  assists: number;
+  rating: string | null;
+  is_motm: boolean;
+}
+
+/**
  * CSV 데이터에서 로드되는 선수 정보 타입
  */
 export interface Player {
@@ -11,13 +26,8 @@ export interface Player {
   league: string;
   position: string;
 
-  // 주간 스탯 (null 가능 - 경기 미출전 시)
-  weekly_matches: number | null;
-  weekly_minutes: number | null;
-  weekly_goals: number | null;
-  weekly_assists: number | null;
-  weekly_avg_rating: number | null;
-  weekly_mvp_score: number | null;
+  // 최근 경기 정보 (파싱된 데이터)
+  recent_match?: RecentMatch | null;
 
   // 시즌 스탯 (null 가능)
   season_matches: number | null;
@@ -41,7 +51,7 @@ export interface Player {
  * 정렬 설정 타입
  */
 export interface SortConfig {
-  key: keyof Player | null;
+  key: string | null;
   direction: 'asc' | 'desc';
 }
 
