@@ -1,5 +1,13 @@
 import React from 'react';
-import '../styles/components/FilterPanel.css';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Switch } from '@/components/ui/switch';
+import { Button } from '@/components/ui/button';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { RotateCcw } from 'lucide-react';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { translateLeague, translatePosition } from '@/utils/translations';
 
 interface FilterPanelProps {
   leagues: string[];
@@ -24,94 +32,131 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   onInjuredToggle,
   onResetFilters
 }) => {
-  const handleLeagueChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const options = e.target.options;
-    const selected: string[] = [];
-    for (let i = 0; i < options.length; i++) {
-      if (options[i].selected) {
-        selected.push(options[i].value);
-      }
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
+  const handleLeagueToggle = (league: string, checked: boolean) => {
+    if (checked) {
+      onLeagueChange([...selectedLeagues, league]);
+    } else {
+      onLeagueChange(selectedLeagues.filter(l => l !== league));
     }
-    onLeagueChange(selected);
   };
 
   const hasActiveFilters = selectedLeagues.length > 0 || selectedPosition !== '' || injuredOnly;
 
-  return (
-    <div className="filter-panel fade-in" style={{ animationDelay: '0.2s' }}>
-      <div className="container">
-        <div className="filter-content">
-          <div className="filter-header">
-            <h2 className="filter-title">필터</h2>
-            {hasActiveFilters && (
-              <button
-                className="reset-filters-btn"
-                onClick={onResetFilters}
-                aria-label="필터 초기화"
-              >
-                🔄 초기화
-              </button>
-            )}
-          </div>
-
-          <div className="filter-grid">
-            {/* 리그 필터 */}
-            <div className="filter-group">
-              <label htmlFor="league-filter" className="filter-label">
-                리그
-              </label>
-              <select
-                id="league-filter"
-                className="filter-select"
-                multiple
-                value={selectedLeagues}
-                onChange={handleLeagueChange}
-                size={4}
-              >
-                {leagues.map(league => (
-                  <option key={league} value={league}>
-                    {league}
-                  </option>
-                ))}
-              </select>
-              <p className="filter-hint">Ctrl/Cmd + 클릭으로 다중 선택</p>
+  const filterContent = (
+    <div className="space-y-4">
+      {/* 리그 필터 - Accordion */}
+      <Accordion type="single" collapsible className="rounded-xl border bg-card shadow-sm">
+        <AccordionItem value="leagues" className="border-none">
+          <AccordionTrigger className="px-6 py-4 hover:no-underline">
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-bold">리그</span>
+              {selectedLeagues.length > 0 && (
+                <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs font-semibold rounded-full">
+                  {selectedLeagues.length}
+                </span>
+              )}
             </div>
-
-            {/* 포지션 필터 */}
-            <div className="filter-group">
-              <label htmlFor="position-filter" className="filter-label">
-                포지션
-              </label>
-              <select
-                id="position-filter"
-                className="filter-select"
-                value={selectedPosition}
-                onChange={(e) => onPositionChange(e.target.value)}
-              >
-                <option value="">전체 포지션</option>
-                {positions.map(position => (
-                  <option key={position} value={position}>
-                    {position}
-                  </option>
-                ))}
-              </select>
+          </AccordionTrigger>
+          <AccordionContent className="px-6 pb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {leagues.map((league) => (
+                <div key={league} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                  <Checkbox
+                    id={`league-${league}`}
+                    checked={selectedLeagues.includes(league)}
+                    onCheckedChange={(checked) => handleLeagueToggle(league, checked as boolean)}
+                  />
+                  <label
+                    htmlFor={`league-${league}`}
+                    className="text-sm font-medium leading-none cursor-pointer flex-1"
+                  >
+                    {translateLeague(league)}
+                  </label>
+                </div>
+              ))}
             </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
-            {/* 부상 선수 필터 */}
-            <div className="filter-group">
-              <label className="filter-label checkbox-label">
-                <input
-                  type="checkbox"
-                  className="filter-checkbox"
-                  checked={injuredOnly}
-                  onChange={(e) => onInjuredToggle(e.target.checked)}
-                />
-                <span className="checkbox-custom"></span>
-                <span className="checkbox-text">부상 선수만 보기 🚑</span>
-              </label>
+      {/* 포지션 필터 - Accordion */}
+      <Accordion type="single" collapsible className="rounded-xl border bg-card shadow-sm">
+        <AccordionItem value="positions" className="border-none">
+          <AccordionTrigger className="px-6 py-4 hover:no-underline">
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-bold">포지션</span>
+              {selectedPosition && (
+                <span className="px-2 py-0.5 bg-secondary/10 text-secondary text-xs font-semibold rounded-full">
+                  {translatePosition(selectedPosition)}
+                </span>
+              )}
             </div>
-          </div>
+          </AccordionTrigger>
+          <AccordionContent className="px-6 pb-4">
+            <RadioGroup value={selectedPosition} onValueChange={onPositionChange} className="space-y-2">
+              <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                <RadioGroupItem value="" id="position-all" />
+                <Label htmlFor="position-all" className="cursor-pointer flex-1">전체 포지션</Label>
+              </div>
+              {positions.map((position) => (
+                <div key={position} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                  <RadioGroupItem value={position} id={`position-${position}`} />
+                  <Label htmlFor={`position-${position}`} className="cursor-pointer flex-1">{translatePosition(position)}</Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
+      {/* 부상 선수 필터 - Card Style */}
+      <div className="flex items-center justify-between space-x-2 rounded-xl border bg-card shadow-sm p-6 hover:shadow-md transition-shadow">
+        <div className="flex items-center space-x-3">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            className="h-5 w-5 text-primary"
+            fill="currentColor"
+          >
+            <rect x="10" y="3" width="4" height="18" rx="0.5" />
+            <rect x="3" y="10" width="18" height="4" rx="0.5" />
+          </svg>
+          <Label htmlFor="injured-only" className="text-base font-bold cursor-pointer">
+            부상 선수만 보기
+          </Label>
         </div>
+        <Switch
+          id="injured-only"
+          checked={injuredOnly}
+          onCheckedChange={onInjuredToggle}
+        />
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="w-full bg-gradient-to-b from-background to-muted/20 border-b border-border/30 mb-8">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            필터
+          </h2>
+          {hasActiveFilters && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onResetFilters}
+              className="gap-2 rounded-full shadow-sm hover:shadow-md transition-shadow"
+            >
+              <RotateCcw className="h-4 w-4" />
+              초기화
+            </Button>
+          )}
+        </div>
+
+        {filterContent}
       </div>
     </div>
   );

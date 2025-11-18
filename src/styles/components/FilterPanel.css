@@ -219,6 +219,20 @@
   font-size: var(--font-size-md);
   color: var(--text-primary);
   font-weight: var(--font-weight-medium);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.checkbox-icon {
+  color: #dc2626; /* Red-600 */
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.checkbox-label:hover .checkbox-icon {
+  color: #991b1b; /* Red-800 */
+  transform: scale(1.1);
 }
 
 /* Responsive - Mobile Optimization */

@@ -26,85 +26,63 @@
 }
 
 .header-content {
-  text-align: center;
-  position: relative;
-  z-index: 1;
-}
-
-/* Main Title - Large & Bold */
-.header-title {
-  font-family: var(--font-family);
-  font-size: var(--font-size-4xl);
-  font-weight: var(--font-weight-bold);
-  margin-bottom: var(--space-lg);
-  letter-spacing: -0.03em;
-  color: var(--text-primary);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-md);
-  line-height: var(--line-height-tight);
+  justify-content: center;
+  gap: var(--space-lg);
+  position: relative;
+  z-index: 1;
+  text-align: center;
 }
 
-/* Main Title with Gradient Accent */
-.title-main {
+/* Main Title - Large & Bold, Editorial Style */
+.header-title {
+  font-family: var(--font-family);
+  font-size: 3.5rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
   background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-size: 1em;
+  margin: 0;
   position: relative;
-  display: inline-block;
-  padding: 0 var(--space-sm);
 }
 
-/* Decorative Brackets - Korean Aesthetic */
-.title-main::before,
-.title-main::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px;
-  height: 60%;
-  background: linear-gradient(180deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-  border-radius: 2px;
+/* Subtitle Wrapper - Horizontal Layout */
+.header-subtitle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.title-main::before {
-  left: -8px;
-}
-
-.title-main::after {
-  right: -8px;
-}
-
-/* Divider */
-.title-divider {
-  color: var(--text-muted);
-  font-weight: var(--font-weight-normal);
-  font-size: 0.5em;
-  opacity: 0.6;
-}
-
-/* Korean Subtitle */
-.title-sub {
-  color: var(--text-secondary);
-  font-size: 0.5em;
-  font-weight: var(--font-weight-medium);
-  letter-spacing: 0.05em;
-}
-
-/* Header Subtitle - Data Context */
+/* Header Subtitle - Main Context */
 .header-subtitle {
+  color: var(--text-primary);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+/* Subtitle Divider - Soft Dot */
+.subtitle-divider {
+  color: var(--text-muted);
+  font-size: var(--font-size-lg);
+  opacity: 0.5;
+}
+
+/* Header Description - Secondary Context */
+.header-description {
   color: var(--text-secondary);
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-normal);
-  margin-top: var(--space-sm);
-  line-height: var(--line-height-normal);
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0;
+  opacity: 0.85;
 }
 
 /* Week Info Badge - New */
@@ -201,21 +179,24 @@
   }
 
   .header-title {
-    font-size: var(--font-size-3xl);
-    gap: var(--space-sm);
+    font-size: 2.5rem;
   }
 
-  .title-divider {
+  .header-subtitle-wrapper {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .subtitle-divider {
     display: none;
   }
 
-  .title-sub {
-    font-size: 0.55em;
+  .header-subtitle {
+    font-size: var(--font-size-md);
   }
 
-  .title-main::before,
-  .title-main::after {
-    display: none;
+  .header-description {
+    font-size: var(--font-size-sm);
   }
 
   .header-stats {
@@ -232,20 +213,17 @@
   }
 }
 
-@media (min-width: 600px) {
-  .header-title {
-    flex-direction: row;
-    gap: var(--space-xl);
-  }
-
-  .title-divider {
-    display: inline;
-  }
-}
-
 @media (max-width: 480px) {
   .header-title {
-    font-size: var(--font-size-2xl);
+    font-size: 2rem;
+  }
+
+  .header-subtitle {
+    font-size: var(--font-size-base);
+  }
+
+  .header-description {
+    font-size: var(--font-size-xs);
   }
 
   .week-info {
