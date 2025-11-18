@@ -35,26 +35,14 @@ function App(): JSX.Element {
     const fetchData = async () => {
       try {
         setLoading(true);
-        console.log('🔄 CSV 데이터 로딩 시작...');
-
         const data = await loadPlayerData('/example.csv');
-        console.log('📥 로드된 전체 데이터 개수:', data.length);
 
         // 데이터 검증
         const validPlayers = data.filter(validatePlayer);
-        const invalidCount = data.length - validPlayers.length;
-
-        if (invalidCount > 0) {
-          console.warn(`⚠️ ${invalidCount}개의 유효하지 않은 데이터 제외됨`);
-        }
-
-        console.log('✅ 유효한 선수 데이터:', validPlayers.length, '명');
-        console.log('👥 샘플 선수:', validPlayers.slice(0, 3).map(p => p.player_name_kr));
 
         setPlayers(validPlayers);
         setLoading(false);
       } catch (err) {
-        console.error('❌ 데이터 로딩 실패:', err);
         setError('데이터를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.');
         setLoading(false);
       }
@@ -65,13 +53,6 @@ function App(): JSX.Element {
 
   // Filtered and Sorted Players
   const displayedPlayers = useMemo(() => {
-    console.log('🔍 필터링 시작:', {
-      전체선수: players.length,
-      선택리그: selectedLeagues.length > 0 ? selectedLeagues : '전체',
-      선택포지션: selectedPosition || '전체',
-      부상선수만: injuredOnly
-    });
-
     // 1. Apply Filters
     const filtered = filterData(players, {
       leagues: selectedLeagues,
@@ -79,20 +60,14 @@ function App(): JSX.Element {
       injuredOnly
     });
 
-    console.log('✅ 필터 적용 후:', filtered.length, '명');
-
     // 2. Apply Sorting
     const sorted = sortData(filtered, sortConfig.key, sortConfig.direction);
-
-    if (sortConfig.key) {
-      console.log('📊 정렬 적용:', sortConfig.key, sortConfig.direction);
-    }
 
     return sorted;
   }, [players, selectedLeagues, selectedPosition, injuredOnly, sortConfig]);
 
   // Sort Handler
-  const handleSort = (columnKey: keyof Player) => {
+  const handleSort = (columnKey: string) => {
     setSortConfig(prevConfig => {
       if (prevConfig.key === columnKey) {
         // Toggle direction
@@ -112,7 +87,6 @@ function App(): JSX.Element {
     setSelectedLeagues([]);
     setSelectedPosition('');
     setInjuredOnly(false);
-    console.log('🔄 필터 초기화 완료');
   };
 
   // Loading State

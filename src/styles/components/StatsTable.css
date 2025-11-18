@@ -110,6 +110,8 @@
   left: 0;
   z-index: 10;
   background-color: var(--bg-tertiary);
+  min-width: 180px;
+  padding-left: var(--space-lg);
 }
 
 .stats-table tbody tr td:first-child {
@@ -200,13 +202,10 @@
   min-width: 100px; /* Ensure readable column width */
 }
 
-/* Player Name Cell - Emphasized & Sticky */
+/* Player Name Cell - Emphasized */
 .player-name-cell {
   font-weight: var(--font-weight-bold);
-  position: relative;
   font-size: var(--font-size-xl);
-  min-width: 180px !important;
-  padding-left: var(--space-lg) !important;
 }
 
 .player-name-link {
@@ -230,12 +229,25 @@
   margin: calc(var(--space-xs) * -1);
 }
 
-/* Injury Icon - Clear Warning */
+/* Injury Icon - Medical Cross */
 .injury-icon {
-  font-size: var(--font-size-lg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: var(--space-xs);
   cursor: help;
-  opacity: 0.9;
-  filter: drop-shadow(0 0 2px rgba(198, 40, 40, 0.3));
+  color: #dc2626; /* Red-600 */
+  transition: all var(--transition-fast);
+}
+
+.injury-icon svg {
+  display: block;
+  filter: drop-shadow(0 1px 2px rgba(220, 38, 38, 0.2));
+}
+
+.injury-icon:hover {
+  color: #991b1b; /* Red-800 */
+  transform: scale(1.1);
 }
 
 /* Team Cell */
@@ -393,9 +405,13 @@
     padding: var(--space-md) var(--space-sm);
   }
 
+  .table-header:first-child,
+  .stats-table td:first-child {
+    min-width: 150px;
+  }
+
   .player-name-cell {
     font-size: var(--font-size-md);
-    min-width: 150px !important;
   }
 }
 
@@ -415,9 +431,13 @@
     min-width: 80px;
   }
 
+  .table-header:first-child,
+  .stats-table td:first-child {
+    min-width: 140px;
+  }
+
   .player-name-cell {
     font-size: var(--font-size-base);
-    min-width: 140px !important;
   }
 
   .team-cell {
@@ -443,8 +463,9 @@
     padding: var(--space-lg);
   }
 
-  .player-name-cell {
-    min-width: 120px !important;
+  .table-header:first-child,
+  .stats-table td:first-child {
+    min-width: 120px;
   }
 }
 
