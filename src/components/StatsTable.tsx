@@ -21,6 +21,7 @@ interface StatsTableProps {
   players: Player[];
   sortConfig: SortConfig;
   onSort: (key: string) => void;
+  onPlayerClick: (player: Player) => void;
 }
 
 interface Column {
@@ -30,7 +31,7 @@ interface Column {
   className?: string;
 }
 
-const StatsTable: React.FC<StatsTableProps> = ({ players, sortConfig, onSort }) => {
+const StatsTable: React.FC<StatsTableProps> = ({ players, sortConfig, onSort, onPlayerClick }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const tableWrapperRef = useRef<HTMLDivElement>(null);
   const { scrolled, scrolledEnd } = useScrollShadow(tableWrapperRef);
@@ -76,7 +77,12 @@ const StatsTable: React.FC<StatsTableProps> = ({ players, sortConfig, onSort }) 
         ) : (
           <Accordion type="multiple" className="w-full">
             {players.map((player, index) => (
-              <PlayerCard key={`${player.player_id}-${index}`} player={player} index={index} />
+              <PlayerCard
+                key={`${player.player_id}-${index}`}
+                player={player}
+                index={index}
+                onViewProfile={onPlayerClick}
+              />
             ))}
           </Accordion>
         )}
@@ -126,16 +132,15 @@ const StatsTable: React.FC<StatsTableProps> = ({ players, sortConfig, onSort }) 
               </TableRow>
             ) : (
               players.map((player, index) => (
-                <TableRow key={`${player.player_id}-${index}`}>
+                <TableRow
+                  key={`${player.player_id}-${index}`}
+                  className="cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => onPlayerClick(player)}
+                >
                   {/* 선수명 (Sticky) */}
                   <TableCell className="font-medium sticky left-0 bg-background z-10">
-                    <a
-                      href={player.fotmob_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 hover:underline text-primary"
-                    >
-                      {player.player_name_kr}
+                    <div className="flex items-center gap-2">
+                      <span className="text-primary">{player.player_name_kr}</span>
                       {player.is_injured === 'Yes' && (
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -148,8 +153,16 @@ const StatsTable: React.FC<StatsTableProps> = ({ players, sortConfig, onSort }) 
                           <rect x="3" y="10" width="18" height="4" rx="0.5" />
                         </svg>
                       )}
-                      <ExternalLink className="h-3 w-3 opacity-50" />
-                    </a>
+                      <a
+                        href={player.fotmob_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="opacity-50 hover:opacity-100 transition-opacity"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
                   </TableCell>
 
                   {/* 소속팀 */}

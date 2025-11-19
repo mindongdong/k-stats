@@ -10,9 +10,10 @@ import type { Player } from '@/types';
 interface PlayerCardProps {
   player: Player;
   index: number;
+  onViewProfile: (player: Player) => void;
 }
 
-const PlayerCard: React.FC<PlayerCardProps> = ({ player, index }) => {
+const PlayerCard: React.FC<PlayerCardProps> = ({ player, index, onViewProfile }) => {
   return (
     <AccordionItem value={`player-${player.player_id}-${index}`} className="border rounded-lg mb-2">
       <AccordionTrigger className="px-4 py-3 hover:no-underline">
@@ -117,23 +118,33 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player, index }) => {
             </div>
           </div>
 
-          {/* FotMob 링크 */}
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full"
-            asChild
-          >
-            <a
-              href={player.fotmob_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2"
+          {/* 액션 버튼 */}
+          <div className="flex gap-2">
+            <Button
+              variant="default"
+              size="sm"
+              className="flex-1"
+              onClick={() => onViewProfile(player)}
             >
-              FotMob에서 상세 정보 보기
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          </Button>
+              프로필 보기
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1"
+              asChild
+            >
+              <a
+                href={player.fotmob_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2"
+              >
+                FotMob
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </Button>
+          </div>
         </div>
       </AccordionContent>
     </AccordionItem>

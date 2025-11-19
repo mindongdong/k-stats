@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Header from './components/Header';
 import FilterPanel from './components/FilterPanel';
 import StatsTable from './components/StatsTable';
+import { PlayerProfileModal } from './components/PlayerProfileModal';
 import { loadPlayerData, getUniqueLeagues, getUniquePositions } from './utils/csvParser';
 import { sortData, filterData, validatePlayer } from './utils/dataHelpers';
 import type { Player, SortConfig } from './types';
@@ -20,6 +21,10 @@ function App(): JSX.Element {
 
   // Sort State
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'asc' });
+
+  // Modal State
+  const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+  const [selectedPlayerName, setSelectedPlayerName] = useState<string>('');
 
   // Derived State - Unique Leagues & Positions
   const leagues = useMemo(() => {
@@ -89,6 +94,18 @@ function App(): JSX.Element {
     setInjuredOnly(false);
   };
 
+  // Player Click Handler
+  const handlePlayerClick = (player: Player) => {
+    setSelectedPlayerId(player.player_id);
+    setSelectedPlayerName(player.player_name_kr || player.player_name);
+  };
+
+  // Modal Close Handler
+  const handleCloseModal = () => {
+    setSelectedPlayerId(null);
+    setSelectedPlayerName('');
+  };
+
   // Loading State
   if (loading) {
     return (
@@ -139,6 +156,7 @@ function App(): JSX.Element {
             players={displayedPlayers}
             sortConfig={sortConfig}
             onSort={handleSort}
+            onPlayerClick={handlePlayerClick}
           />
         </div>
       </main>
@@ -153,6 +171,13 @@ function App(): JSX.Element {
           </p>
         </div>
       </footer>
+
+      {/* Player Profile Modal */}
+      <PlayerProfileModal
+        playerId={selectedPlayerId}
+        playerName={selectedPlayerName}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }
