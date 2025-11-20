@@ -133,6 +133,13 @@ const TEAM_TRANSLATIONS = {
   'st. louis city': '세인트루이스 시티',
 } as const;
 
+// Preferred foot translations
+const PREFERRED_FOOT_TRANSLATIONS = {
+  'left': '왼발',
+  'right': '오른발',
+  'both': '양발',
+} as const;
+
 /**
  * Translate position name to Korean
  * @param position - English position name
@@ -183,4 +190,16 @@ export function getTranslatedPositions(positions: string[]): string[] {
  */
 export function getTranslatedLeagues(leagues: string[]): string[] {
   return leagues.map(translateLeague);
+}
+
+/**
+ * Translate preferred foot to Korean
+ * @param foot - Preferred foot (Left, Right, Both)
+ * @returns Korean translation or "-" if null/empty
+ */
+export function translatePreferredFoot(foot: string | null): string {
+  if (!foot) return '-';
+
+  const normalized = foot.toLowerCase();
+  return PREFERRED_FOOT_TRANSLATIONS[normalized as keyof typeof PREFERRED_FOOT_TRANSLATIONS] || foot;
 }
