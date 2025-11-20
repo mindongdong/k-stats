@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
-import { ExternalLink, TrendingUp, TrendingDown } from 'lucide-react'
+import { ExternalLink, Award, Medal, Trophy } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { Tooltip } from '@/components/ui/tooltip'
 import { PlayerProfile } from '@/types/playerProfile'
 import { loadPlayerProfile, formatPercentile, formatDecimal, formatSuccessRate } from '@/utils/profileParser'
-import { translateTeam, translateLeague, translatePosition } from '@/utils/translations'
+import { translateTeam, translateLeague, translatePosition, translatePreferredFoot } from '@/utils/translations'
 import { formatStat } from '@/utils/dataHelpers'
 
 interface PlayerProfileModalProps {
@@ -17,17 +18,19 @@ interface PlayerProfileModalProps {
   onClose: () => void
 }
 
-type TabType = 'overview' | 'attack' | 'passing' | 'defense' | 'discipline' | 'advanced'
+type TabType = 'overview' | 'attack' | 'passing' | 'defense'
 
 export function PlayerProfileModal({ playerId, playerName, onClose }: PlayerProfileModalProps) {
   const [profile, setProfile] = useState<PlayerProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<TabType>('overview')
+  const [imageError, setImageError] = useState(false)
 
   useEffect(() => {
     if (!playerId) return
 
     setLoading(true)
+    setImageError(false) // Reset image error state on new player
     loadPlayerProfile(playerId)
       .then((data) => {
         setProfile(data)
@@ -45,9 +48,21 @@ export function PlayerProfileModal({ playerId, playerName, onClose }: PlayerProf
     { id: 'attack', label: '공격' },
     { id: 'passing', label: '패스' },
     { id: 'defense', label: '수비' },
-    { id: 'discipline', label: '징계' },
-    { id: 'advanced', label: '상세' },
   ]
+
+  const getPercentileIcon = (percentile: number) => {
+    if (percentile >= 90) return <Trophy className="w-3 h-3" />
+    if (percentile >= 70) return <Medal className="w-3 h-3" />
+    return <Award className="w-3 h-3" />
+  }
+
+  const getPercentileRank = (percentile: number) => {
+    const rank = 100 - percentile
+    if (rank < 1) return '상위 1%'
+    if (rank < 5) return `상위 ${Math.ceil(rank)}%`
+    if (rank < 10) return `상위 ${Math.round(rank)}%`
+    return `상위 ${Math.round(rank / 5) * 5}%`
+  }
 
   const renderStatWithPercentile = (
     label: string,
@@ -59,16 +74,22 @@ export function PlayerProfileModal({ playerId, playerName, onClose }: PlayerProf
     const isHigh = percentileValue >= 70
     const isMid = percentileValue >= 40 && percentileValue < 70
 
+    const tooltipContent = profile
+      ? `${translateLeague(profile.league)} ${translatePosition(profile.position)} 선수 중 ${getPercentileRank(percentileValue)}`
+      : ''
+
     return (
       <div className="stat-item">
         <div className="stat-label">{label}</div>
         <div className="stat-value-row">
           <span className="stat-value">{formatStat(value)}{unit}</span>
           {percentile !== null && percentile !== undefined && (
-            <span className={`stat-percentile ${isHigh ? 'high' : isMid ? 'mid' : 'low'}`}>
-              {isHigh ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-              {formatPercentile(percentile)}
-            </span>
+            <Tooltip content={tooltipContent}>
+              <span className={`stat-percentile ${isHigh ? 'high' : isMid ? 'mid' : 'low'}`}>
+                {getPercentileIcon(percentileValue)}
+                <span className="percentile-rank">{getPercentileRank(percentileValue)}</span>
+              </span>
+            </Tooltip>
           )}
         </div>
       </div>
@@ -105,9 +126,18 @@ export function PlayerProfileModal({ playerId, playerName, onClose }: PlayerProf
             {/* Header Section */}
             <div className="modal-header-section">
               <div className="player-avatar">
-                <div className="avatar-placeholder">
-                  {profile.player_name_kr?.charAt(0) || profile.player_name?.charAt(0)}
-                </div>
+                {!imageError ? (
+                  <img
+                    src={`https://images.fotmob.com/image_resources/playerimages/${playerId}.png`}
+                    alt={profile.player_name_kr || profile.player_name}
+                    className="avatar-image"
+                    onError={() => setImageError(true)}
+                  />
+                ) : (
+                  <div className="avatar-placeholder">
+                    {profile.player_name_kr?.charAt(0) || profile.player_name?.charAt(0)}
+                  </div>
+                )}
               </div>
               <div className="player-info">
                 <h2 className="player-name">{profile.player_name_kr || profile.player_name}</h2>
@@ -142,16 +172,12 @@ export function PlayerProfileModal({ playerId, playerName, onClose }: PlayerProf
                 <span className="detail-value">{profile.age}세</span>
               </div>
               <div className="detail-item">
-                <span className="detail-label">국적</span>
-                <span className="detail-value">{profile.nationality}</span>
-              </div>
-              <div className="detail-item">
                 <span className="detail-label">키</span>
                 <span className="detail-value">{profile.height || '-'}</span>
               </div>
               <div className="detail-item">
                 <span className="detail-label">주발</span>
-                <span className="detail-value">{profile.preferred_foot || '-'}</span>
+                <span className="detail-value">{translatePreferredFoot(profile.preferred_foot)}</span>
               </div>
               <div className="detail-item">
                 <span className="detail-label">시장가치</span>
@@ -202,32 +228,43 @@ export function PlayerProfileModal({ playerId, playerName, onClose }: PlayerProf
                 {activeTab === 'attack' && (
                   <div className="stats-grid">
                     <div className="stat-section">
-                      <h3 className="section-title">득점</h3>
+                      <h3 className="section-title">득점 & 기대 골</h3>
                       <div className="stat-group">
                         {renderStat('골', profile.attack_goals)}
                         {renderStat('기대 골 (xG)', formatDecimal(profile.attack_expected_goals))}
-                        {renderStat('xG 차이', formatDecimal(profile.attack_xg_difference))}
                         {renderStat('논페널티 xG', formatDecimal(profile.attack_non_penalty_xg))}
                       </div>
                     </div>
 
                     <div className="stat-section">
-                      <h3 className="section-title">슈팅</h3>
+                      <h3 className="section-title">슈팅 통계</h3>
                       <div className="stat-group">
-                        {renderStat('총 슈팅', profile.attack_shots)}
-                        {renderStat('유효 슈팅', profile.attack_shots_on_target)}
-                        {renderStat('슈팅 정확도', formatSuccessRate(profile.attack_shooting_accuracy))}
+                        {renderStat('총 슈팅', profile.shot_total_shots)}
+                        {renderStat('유효 슈팅', profile.shot_on_target)}
                         {renderStat('골 전환율', formatSuccessRate(profile.attack_conversion_rate))}
-                        {renderStat('빅찬스 실축', profile.attack_big_chances_missed)}
                       </div>
                     </div>
 
                     <div className="stat-section">
-                      <h3 className="section-title">드리블</h3>
+                      <h3 className="section-title">슈팅 상세</h3>
+                      <div className="stat-group">
+                        {renderStat('왼발 슈팅', profile.shot_left_foot)}
+                        {renderStat('오른발 슈팅', profile.shot_right_foot)}
+                        {renderStat('헤딩 슈팅', profile.shot_headed)}
+                        {renderStat('주발 비율', formatSuccessRate(profile.shot_preferred_foot_ratio))}
+                        {renderStat('오픈 플레이', profile.shot_open_play)}
+                        {renderStat('프리킥', profile.shot_free_kick)}
+                        {renderStat('페널티킥', profile.shot_penalty)}
+                      </div>
+                    </div>
+
+                    <div className="stat-section">
+                      <h3 className="section-title">드리블 & 터치</h3>
                       <div className="stat-group">
                         {renderStat('성공한 드리블', profile.attack_dribbles_succeeded)}
                         {renderStat('드리블 성공률', formatSuccessRate(profile.attack_dribble_success_rate))}
                         {renderStat('박스 내 터치', profile.attack_touches_in_box)}
+                        {renderStat('얻어낸 페널티', profile.possession_penalty_won)}
                       </div>
                     </div>
                   </div>
@@ -240,8 +277,6 @@ export function PlayerProfileModal({ playerId, playerName, onClose }: PlayerProf
                       <div className="stat-group">
                         {renderStat('도움', profile.passing_assists)}
                         {renderStat('기대 도움 (xA)', formatDecimal(profile.passing_expected_assists))}
-                        {renderStat('xA 차이', formatDecimal(profile.passing_xa_difference))}
-                        {renderStat('키패스', profile.passing_key_passes)}
                         {renderStat('찬스 창출', profile.passing_chances_created)}
                       </div>
                     </div>
@@ -272,21 +307,16 @@ export function PlayerProfileModal({ playerId, playerName, onClose }: PlayerProf
                       <h3 className="section-title">태클 & 인터셉트</h3>
                       <div className="stat-group">
                         {renderStat('태클', profile.defense_tackles)}
-                        {renderStat('성공한 태클', profile.defense_tackles_successful)}
-                        {renderStat('태클 성공률', formatSuccessRate(profile.defense_tackle_success_rate))}
                         {renderStat('인터셉트', profile.defense_interceptions)}
-                        {renderStat('클리어링', profile.defense_clearances)}
                         {renderStat('슈팅 차단', profile.defense_blocked_shots)}
                       </div>
                     </div>
 
                     <div className="stat-section">
-                      <h3 className="section-title">듀얼</h3>
+                      <h3 className="section-title">경합</h3>
                       <div className="stat-group">
-                        {renderStat('승리한 듀얼', profile.defense_duels_won)}
-                        {renderStat('듀얼 승률', formatSuccessRate(profile.defense_duel_success_rate))}
-                        {renderStat('지상 듀얼 승', profile.defense_ground_duels_won)}
-                        {renderStat('지상 듀얼 승률', formatSuccessRate(profile.defense_ground_duel_success_rate))}
+                        {renderStat('승리한 경합', profile.defense_duels_won)}
+                        {renderStat('경합 승률', formatSuccessRate(profile.defense_duel_success_rate))}
                         {renderStat('공중볼 승', profile.defense_aerials_won)}
                         {renderStat('공중볼 승률', formatSuccessRate(profile.defense_aerial_success_rate))}
                       </div>
@@ -297,72 +327,22 @@ export function PlayerProfileModal({ playerId, playerName, onClose }: PlayerProf
                       <div className="stat-group">
                         {renderStat('볼 리커버리', profile.defense_recoveries)}
                         {renderStat('드리블 허용', profile.defense_dribbled_past)}
-                        {renderStat('파울', profile.defense_fouls_committed)}
+                        {renderStat('볼 소유권 상실', profile.possession_dispossessed)}
                       </div>
                     </div>
-                  </div>
-                )}
 
-                {activeTab === 'discipline' && (
-                  <div className="stats-grid">
                     <div className="stat-section">
-                      <h3 className="section-title">징계 기록</h3>
+                      <h3 className="section-title">반칙</h3>
                       <div className="stat-group">
                         {renderStat('옐로카드', profile.discipline_yellow_cards)}
                         {renderStat('레드카드', profile.discipline_red_cards)}
-                        {renderStat('파울', profile.discipline_fouls_committed)}
+                        {renderStat('범한 파울', profile.discipline_fouls_committed)}
                         {renderStat('얻어낸 파울', profile.discipline_fouls_won)}
                       </div>
                     </div>
-
-                    <div className="stat-section">
-                      <h3 className="section-title">점유율</h3>
-                      <div className="stat-group">
-                        {renderStat('총 터치', profile.possession_touches)}
-                        {renderStat('박스 내 터치', profile.possession_touches_in_box)}
-                        {renderStat('볼 소유권 상실', profile.possession_dispossessed)}
-                        {renderStat('얻어낸 파울', profile.possession_fouls_won)}
-                        {renderStat('얻어낸 페널티', profile.possession_penalty_won)}
-                      </div>
-                    </div>
                   </div>
                 )}
 
-                {activeTab === 'advanced' && (
-                  <div className="stats-grid">
-                    <div className="stat-section">
-                      <h3 className="section-title">슈팅 분석</h3>
-                      <div className="stat-group">
-                        {renderStat('총 슈팅', profile.shot_total_shots)}
-                        {renderStat('골', profile.shot_goals)}
-                        {renderStat('유효 슈팅', profile.shot_on_target)}
-                        {renderStat('차단된 슈팅', profile.shot_blocked)}
-                        {renderStat('빗나간 슈팅', profile.shot_off_target)}
-                        {renderStat('총 xG', formatDecimal(profile.shot_total_xg))}
-                        {renderStat('슈팅 퀄리티', formatDecimal(profile.shot_quality, 3))}
-                      </div>
-                    </div>
-
-                    <div className="stat-section">
-                      <h3 className="section-title">슈팅 유형</h3>
-                      <div className="stat-group">
-                        {renderStat('왼발 슈팅', profile.shot_left_foot)}
-                        {renderStat('오른발 슈팅', profile.shot_right_foot)}
-                        {renderStat('헤딩 슈팅', profile.shot_headed)}
-                        {renderStat('주발 비율', formatSuccessRate(profile.shot_preferred_foot_ratio))}
-                      </div>
-                    </div>
-
-                    <div className="stat-section">
-                      <h3 className="section-title">슈팅 상황</h3>
-                      <div className="stat-group">
-                        {renderStat('오픈 플레이', profile.shot_open_play)}
-                        {renderStat('프리킥', profile.shot_free_kick)}
-                        {renderStat('페널티킥', profile.shot_penalty)}
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -423,6 +403,24 @@ export function PlayerProfileModal({ playerId, playerName, onClose }: PlayerProf
 
           .player-avatar {
             flex-shrink: 0;
+            width: 80px;
+            height: 80px;
+          }
+
+          .avatar-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: rgba(0, 0, 0, 0.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          }
+
+          @media (prefers-color-scheme: dark) {
+            .avatar-image {
+              background-color: rgba(255, 255, 255, 0.02);
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            }
           }
 
           .avatar-placeholder {
@@ -689,7 +687,7 @@ export function PlayerProfileModal({ playerId, playerName, onClose }: PlayerProf
 
           .stat-group {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 1rem;
           }
 
@@ -715,6 +713,7 @@ export function PlayerProfileModal({ playerId, playerName, onClose }: PlayerProf
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            flex-wrap: nowrap;
           }
 
           .stat-value {
@@ -732,46 +731,97 @@ export function PlayerProfileModal({ playerId, playerName, onClose }: PlayerProf
           .stat-percentile {
             display: inline-flex;
             align-items: center;
-            gap: 0.25rem;
-            padding: 0.125rem 0.5rem;
-            border-radius: 0.375rem;
+            gap: 0.375rem;
+            padding: 0.25rem 0.625rem;
+            border-radius: 1rem;
             font-size: 0.75rem;
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            cursor: help;
+            transition: all 0.2s ease;
+            border: 1.5px solid transparent;
+            white-space: nowrap;
+            flex-shrink: 0;
+          }
+
+          .stat-percentile:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          }
+
+          .percentile-rank {
+            font-variant-numeric: tabular-nums;
           }
 
           .stat-percentile.high {
-            background-color: rgba(46, 125, 50, 0.1);
-            color: #2e7d32;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(212, 175, 55, 0.1) 100%);
+            color: #b8860b;
+            border-color: rgba(218, 165, 32, 0.3);
+          }
+
+          .stat-percentile.high:hover {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.25) 0%, rgba(212, 175, 55, 0.15) 100%);
+            border-color: rgba(218, 165, 32, 0.5);
           }
 
           @media (prefers-color-scheme: dark) {
             .stat-percentile.high {
-              background-color: rgba(102, 187, 106, 0.2);
-              color: #66bb6a;
+              background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(212, 175, 55, 0.15) 100%);
+              color: #ffd700;
+              border-color: rgba(255, 215, 0, 0.3);
+            }
+
+            .stat-percentile.high:hover {
+              background: linear-gradient(135deg, rgba(255, 215, 0, 0.3) 0%, rgba(212, 175, 55, 0.2) 100%);
+              border-color: rgba(255, 215, 0, 0.5);
             }
           }
 
           .stat-percentile.mid {
-            background-color: rgba(237, 108, 2, 0.1);
-            color: #ed6c02;
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.15) 0%, rgba(169, 169, 169, 0.1) 100%);
+            color: #708090;
+            border-color: rgba(192, 192, 192, 0.3);
+          }
+
+          .stat-percentile.mid:hover {
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.25) 0%, rgba(169, 169, 169, 0.15) 100%);
+            border-color: rgba(192, 192, 192, 0.5);
           }
 
           @media (prefers-color-scheme: dark) {
             .stat-percentile.mid {
-              background-color: rgba(255, 167, 38, 0.2);
-              color: #ffa726;
+              background: linear-gradient(135deg, rgba(192, 192, 192, 0.2) 0%, rgba(169, 169, 169, 0.15) 100%);
+              color: #c0c0c0;
+              border-color: rgba(192, 192, 192, 0.3);
+            }
+
+            .stat-percentile.mid:hover {
+              background: linear-gradient(135deg, rgba(192, 192, 192, 0.3) 0%, rgba(169, 169, 169, 0.2) 100%);
+              border-color: rgba(192, 192, 192, 0.5);
             }
           }
 
           .stat-percentile.low {
-            background-color: rgba(211, 47, 47, 0.1);
-            color: #d32f2f;
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.15) 0%, rgba(184, 115, 51, 0.1) 100%);
+            color: #8b4513;
+            border-color: rgba(205, 127, 50, 0.3);
+          }
+
+          .stat-percentile.low:hover {
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.25) 0%, rgba(184, 115, 51, 0.15) 100%);
+            border-color: rgba(205, 127, 50, 0.5);
           }
 
           @media (prefers-color-scheme: dark) {
             .stat-percentile.low {
-              background-color: rgba(239, 83, 80, 0.2);
-              color: #ef5350;
+              background: linear-gradient(135deg, rgba(205, 127, 50, 0.2) 0%, rgba(184, 115, 51, 0.15) 100%);
+              color: #cd7f32;
+              border-color: rgba(205, 127, 50, 0.3);
+            }
+
+            .stat-percentile.low:hover {
+              background: linear-gradient(135deg, rgba(205, 127, 50, 0.3) 0%, rgba(184, 115, 51, 0.2) 100%);
+              border-color: rgba(205, 127, 50, 0.5);
             }
           }
 
@@ -782,6 +832,12 @@ export function PlayerProfileModal({ playerId, playerName, onClose }: PlayerProf
               align-items: flex-start;
             }
 
+            .player-avatar {
+              width: 64px;
+              height: 64px;
+            }
+
+            .avatar-image,
             .avatar-placeholder {
               width: 64px;
               height: 64px;
