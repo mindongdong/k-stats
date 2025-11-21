@@ -72,7 +72,7 @@ export function PlayerProfileModal({ playerId, playerName, onClose }: PlayerProf
   ) => {
     const percentileValue = percentile ?? 0
     const isHigh = percentileValue >= 70
-    const isMid = percentileValue >= 40 && percentileValue < 70
+    const isMid = percentileValue >= 50 && percentileValue < 70
 
     const tooltipContent = profile
       ? `${translateLeague(profile.league)} ${translatePosition(profile.position)} 선수 중 ${getPercentileRank(percentileValue)}`
@@ -83,9 +83,9 @@ export function PlayerProfileModal({ playerId, playerName, onClose }: PlayerProf
         <div className="stat-label">{label}</div>
         <div className="stat-value-row">
           <span className="stat-value">{formatStat(value)}{unit}</span>
-          {percentile !== null && percentile !== undefined && (
+          {percentile !== null && percentile !== undefined && percentileValue >= 50 && (
             <Tooltip content={tooltipContent}>
-              <span className={`stat-percentile ${isHigh ? 'high' : isMid ? 'mid' : 'low'}`}>
+              <span className={`stat-percentile ${isHigh ? 'high' : 'mid'}`}>
                 {getPercentileIcon(percentileValue)}
                 <span className="percentile-rank">{getPercentileRank(percentileValue)}</span>
               </span>
